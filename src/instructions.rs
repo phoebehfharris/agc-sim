@@ -1,4 +1,4 @@
-enum Instruction {
+pub enum Instruction {
     AD(usize),
     ADS(usize),
     AUG(usize),
@@ -51,4 +51,8 @@ enum Instruction {
     XXALQ,
     ZL,
     ZQ,
+}
+
+pub fn parse_bytes(b1: u16, b2: u16) -> (Instruction, usize) {
+    todo!();
 }
