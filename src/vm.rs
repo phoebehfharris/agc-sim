@@ -39,12 +39,14 @@ impl VM {
 
                     })
                 },
+                // TODO Add the rest of the instructions
                 _ => unreachable!()
             }
         }
     }
 
     fn access_memory(&mut self, _address: usize) -> &mut dyn MemoryLocation {
+        // TODO Fix this ig
         todo!()
     }
 }
