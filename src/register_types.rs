@@ -23,7 +23,26 @@ pub struct ProgramCounter {
     inner: u16
 }
 
+impl MemoryLocation for ProgramCounter {
+    fn to_u16(&self) -> u16 {
+        return self.inner;
+    }
+    fn mov_u16(&mut self, other: u16) {
+        todo!()
+    }
+
+    fn mov(&mut self, _other: &dyn MemoryLocation) {
+        todo!()
+    }
+}
+
 pub struct Zero{}
+
+pub trait MemoryLocation {
+    fn to_u16(&self) -> u16;
+    fn mov_u16(&mut self, other: u16);
+    fn mov(&mut self, _other: &dyn MemoryLocation);
+}
 
 // #[cfg(test)]
 // mod tests {

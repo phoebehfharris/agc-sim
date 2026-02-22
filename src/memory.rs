@@ -38,13 +38,17 @@ impl BankOps for NullBank {
     }
 }
 
-struct Memory {
+pub struct Memory {
     ebanks: [EBank; 8],
     banks: [Bank; 43],
     null: NullBank,
 }
 
 impl Memory {
+    pub fn new() -> Self {
+        todo!()
+    }
+
     fn map_bank(&mut self, bank: usize) -> &mut Bank {
         return &mut self.banks[bank];
     }

@@ -1,12 +1,10 @@
-mod register_types;
-
 use crate::register_types::*;
 
 use ouroboros::self_referencing;
 
 
 #[self_referencing]
-struct RegisterFile {
+pub struct RegisterFile {
     // "A"
     accumulator: AccumulatorInteger,
     // NOTE: Everything below is actually 15-bits
@@ -19,7 +17,7 @@ struct RegisterFile {
     // "FB"
     fixed_bank: FixedBank,
     // "Z"
-    program_counter: ProgramCounter,
+    pub program_counter: ProgramCounter,
     // "BB"
     #[borrows(mut erasable_bank, mut fixed_bank)]
     #[not_covariant]
@@ -38,4 +36,7 @@ struct RegisterFile {
     // "ZRUPT"
     program_counter_interrupt: ProgramCounter,
     // TODO: Do the rest of the registers
+}
+
+impl RegisterFile {
 }
