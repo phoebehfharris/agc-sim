@@ -49,7 +49,10 @@ impl VM {
 
         self.memory.read_location(address, eb, fb).unwrap_or(0)
     }
-    fn write_memory(&mut self, _address: usize) {
-        todo!()
+    fn write_memory(&mut self, address: usize, data: u16) {
+        let eb = self.registers.eb_number();
+        let fb = self.registers.fb_number();
+
+        self.memory.write_location(address, eb, fb, data)
     }
 }
