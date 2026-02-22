@@ -5,7 +5,7 @@ pub struct AccumulatorInteger {
 
 impl MemoryLocation for AccumulatorInteger {
     fn to_u16(&self) -> u16 {
-        return self.inner;
+        self.inner
     }
 
     fn mov_u16(&mut self, other: u16) {
@@ -33,6 +33,16 @@ impl MemoryLocation for AccumulatorInteger {
 
 pub struct MemoryInteger {
     inner: u16
+}
+
+impl MemoryLocation for MemoryInteger {
+    fn to_u16(&self) -> u16 {
+        self.inner
+    }
+
+    fn mov_u16(&mut self, other: u16) {
+        self.inner = other & 0b0111_1111_1111_1111;
+    }
 }
 
 // TODO Implement memory
@@ -71,6 +81,16 @@ impl MemoryLocation for ProgramCounter {
 }
 
 pub struct Zero{}
+
+impl MemoryLocation for Zero {
+    fn to_u16(&self) -> u16 {
+        return 0;
+    }
+
+    fn mov_u16(&mut self, other: u16) {
+        panic!("Attempted to set the zero register!")
+    }
+}
 
 // TODO Implement memory
 
