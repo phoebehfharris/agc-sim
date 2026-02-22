@@ -1,5 +1,3 @@
-use crate::register_types::MemoryInteger;
-
 pub enum Instruction {
     AD(usize),
     ADS(usize),

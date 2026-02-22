@@ -10,27 +10,22 @@ impl MemoryLocation for AccumulatorInteger {
 
     fn mov_u16(&mut self, other: u16) {
         // TODO: Change this to MSB
-        let second_last_bit = (other >> 1) & 0b0000000000000001;
+        let second_bit = other & 0b0100000000000000;
 
-        if second_last_bit > 0 {
-            self.inner = other | 0b0000000000000001;
+        if second_bit > 0 {
+            self.inner = other | 0b1000000000000000;
         } else {
-            self.inner = other & 0b1111111111111110;
+            self.inner = other & 0b0111111111111111;
         }
     }
 
-    fn mov(&mut self, _other: &dyn MemoryLocation) {
-        // TODO: Implement this
-
-    }
-
-    fn add(&mut self, other: &dyn MemoryLocation) {
+    fn add(&mut self, other: u16) {
         let mask = 0b0111_1111_1111_1111;
-        let overflow = (self.to_u16() + other.to_u16()) & !mask != 0;
+        let overflow = (self.to_u16() + other) & !mask != 0;
 
         let add = if overflow { 1 } else { 0 };
 
-        self.mov_u16((self.to_u16() + other.to_u16() + add) & mask);
+        self.mov_u16((self.to_u16() + other + add) & mask);
 
         // TODO: Add overflow handling
     }
@@ -73,11 +68,6 @@ impl MemoryLocation for ProgramCounter {
         // TODO Implement
         todo!()
     }
-
-    fn mov(&mut self, _other: &dyn MemoryLocation) {
-        // TODO Implement
-        todo!()
-    }
 }
 
 pub struct Zero{}
@@ -87,15 +77,14 @@ pub struct Zero{}
 pub trait MemoryLocation {
     fn to_u16(&self) -> u16;
     fn mov_u16(&mut self, other: u16);
-    // TODO Provide a default implementation of this
-    fn mov(&mut self, _other: &dyn MemoryLocation);
-    fn add(&mut self, other: &dyn MemoryLocation) {
+
+    fn add(&mut self, other: u16) {
         let mask = 0b0111_1111_1111_1111;
-        let overflow = (self.to_u16() + other.to_u16()) & !mask != 0;
+        let overflow = (self.to_u16() + other) & !mask != 0;
 
         let add = if overflow { 1 } else { 0 };
 
-        self.mov_u16((self.to_u16() + other.to_u16() + add) & mask);
+        self.mov_u16((self.to_u16() + other + add) & mask);
     }
 
 }

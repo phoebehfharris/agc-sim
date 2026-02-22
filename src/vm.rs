@@ -26,22 +26,20 @@ impl VM {
                 pc.mov_u16(old_pc + 1);
             });
 
-            let i1 = self.access_memory(old_pc as usize).to_u16();
-            let i2 = self.access_memory((old_pc + 1) as usize).to_u16();
+            let i1 = self.read_memory(old_pc as usize);
+            let i2 = self.read_memory((old_pc + 1) as usize);
 
-            let (opcode, taken) = parse_bytes(i1, i2);
+            let (opcode, _taken) = parse_bytes(i1, i2);
 
             match opcode {
                 Instruction::AD(rhs_addr) => {
-                    let mem = self.access_memory(rhs);
+                    let mem = self.read_memory(rhs_addr);
                     self.registers.with_accumulator_mut(|acc| {
                         acc.add(mem);
-
                     })
                 },
-                Instruction::ADS(rhs) => {
-                    self.registers.with_accumulator_mut(|acc| {
-
+                Instruction::ADS(_rhs) => {
+                    self.registers.with_accumulator_mut(|_acc| {
                     })
                 },
                 // TODO Add the rest of the instructions
@@ -50,8 +48,6 @@ impl VM {
         }
     }
 
-    fn access_memory(&mut self, _address: usize) -> &mut dyn MemoryLocation {
-        // TODO Fix this ig
-        todo!()
-    }
+    fn read_memory(&self, _address: usize) -> u16 {todo!()}
+    fn write_memory(&mut self, _address: usize) {todo!()}
 }

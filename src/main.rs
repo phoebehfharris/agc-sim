@@ -7,7 +7,7 @@ mod registerfile;
 mod vm;
 
 fn main() {
-    let mut vm = VM::new();
+    // let mut vm = VM::new();
 
     // TODO Actually run the code
 
