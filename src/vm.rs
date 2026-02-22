@@ -1,5 +1,4 @@
 use std::fmt::Display;
-use std::io::Read;
 
 use crate::instructions::{Instruction, parse_bytes};
 use crate::memory::Memory;

@@ -65,12 +65,12 @@ impl Default for RegisterFile {
 impl RegisterFile {
     pub fn eb_number(&self) -> usize {
         let eb_mask = 0b0_000_011_100_000_000;
-        let eb = self.with_both_banks(|bb| bb.erasable.to_u15()) & eb_mask;
+        let eb = self.with_both_banks(|bb| bb.erasable.to_u16()) & eb_mask;
         eb as usize >> 8
     }
     pub fn fb_number(&self) -> usize {
         let fb_mask = 0b0_111_110_100_000_000;
-        let eb = self.with_both_banks(|bb| bb.fixed.to_u15()) & fb_mask;
+        let eb = self.with_both_banks(|bb| bb.fixed.to_u16()) & fb_mask;
 
         let eb = eb as usize >> 10;
         let io_7 = 0;

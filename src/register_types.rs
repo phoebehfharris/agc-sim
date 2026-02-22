@@ -5,11 +5,9 @@ pub struct AccumulatorInteger {
 }
 
 impl MemoryLocation for AccumulatorInteger {
+    // TODO FUUUUUUUUCK WE GOTTA HANDLE MOVES FROM ACC TO ACC MORE EXPLICITLY
     fn to_u16(&self) -> u16 {
         self.inner
-    }
-    fn to_u15(&self) -> u16 {
-        return self.inner & 0b0111111111111111;
     }
 
     fn mov_u16(&mut self, other: u16) {
@@ -24,10 +22,8 @@ impl MemoryLocation for AccumulatorInteger {
     }
 
     fn add(&mut self, other: u16) {
-        let value = sp15_add(self.to_u15(), other);
+        let value = sp15_add(self.to_u16(), other);
         self.mov_u16(value);
-
-        // TODO: Add overflow handling
     }
 }
 
@@ -40,23 +36,14 @@ impl MemoryLocation for MemoryInteger {
     fn to_u16(&self) -> u16 {
         self.inner
     }
-    fn to_u15(&self) -> u16 {
-        return self.inner & 0b0111111111111111;
-    }
 
     fn mov_u16(&mut self, other: u16) {
         // TODO: Change this to MSB
-        let second_bit = other & 0b0100000000000000;
-
-        if second_bit > 0 {
-            self.inner = other | 0b1000000000000000;
-        } else {
-            self.inner = other & 0b0111111111111111;
-        }
+        self.inner = other & 0b0111111111111111;
     }
 
     fn add(&mut self, other: u16) {
-        let value = sp15_add(self.to_u15(), other);
+        let value = sp15_add(self.to_u16(), other);
         self.mov_u16(value);
 
         // TODO: Add overflow handling
@@ -74,26 +61,13 @@ impl MemoryLocation for ErasableBank {
     fn to_u16(&self) -> u16 {
         self.inner
     }
-    fn to_u15(&self) -> u16 {
-        return self.inner & 0b0111111111111111;
-    }
 
     fn mov_u16(&mut self, other: u16) {
-        // TODO: Change this to MSB
-        let second_bit = other & 0b0100000000000000;
-
-        if second_bit > 0 {
-            self.inner = other | 0b1000000000000000;
-        } else {
-            self.inner = other & 0b0111111111111111;
-        }
+        self.inner = other & 0b000_011_100_000_000;
     }
 
-    fn add(&mut self, other: u16) {
-        let value = sp15_add(self.to_u15(), other);
-        self.mov_u16(value);
-
-        // TODO: Add overflow handling
+    fn add(&mut self, _other: u16) {
+        panic!("Please don't the bank switcher");
     }
 }
 
@@ -106,26 +80,13 @@ impl MemoryLocation for FixedBank {
     fn to_u16(&self) -> u16 {
         self.inner
     }
-    fn to_u15(&self) -> u16 {
-        return self.inner & 0b0111111111111111;
-    }
 
     fn mov_u16(&mut self, other: u16) {
-        // TODO: Change this to MSB
-        let second_bit = other & 0b0100000000000000;
-
-        if second_bit > 0 {
-            self.inner = other | 0b1000000000000000;
-        } else {
-            self.inner = other & 0b0111111111111111;
-        }
+        self.inner = other & 0b111_100_000_000_000;
     }
 
-    fn add(&mut self, other: u16) {
-        let value = sp15_add(self.to_u15(), other);
-        self.mov_u16(value);
-
-        // TODO: Add overflow handling
+    fn add(&mut self, _other: u16) {
+        panic!("Please don't the bank switcher");
     }
 }
 
@@ -135,9 +96,25 @@ pub struct BothBanks<'a> {
     pub fixed: &'a mut FixedBank,
 }
 
-// impl BothBanks
+impl<'a> MemoryLocation for BothBanks<'a> {
+    fn to_u16(&self) -> u16 {
+        return self.fixed.inner | (self.erasable.inner >> 6);
+    }
+
+    fn mov_u16(&mut self, other: u16) {
+        self.fixed.mov_u16(other);
+
+        self.erasable.mov_u16(other << 6);
+    }
+
+    fn add(&mut self, _other: u16) {
+        panic!("Please don't the bank switcher");
+    }
+
+}
 
 // TODO Implement memory (fun!)
+// HELL WORLD HELL WORLD HELL WORLD
 
 #[derive(Default)]
 pub struct ProgramCounter {
@@ -148,9 +125,6 @@ impl MemoryLocation for ProgramCounter {
     fn to_u16(&self) -> u16 {
         return self.inner;
     }
-    fn to_u15(&self) -> u16 {
-        return self.inner & 0b0111111111111111;
-    }
     fn mov_u16(&mut self, other: u16) {
         // TODO: Change this to MSB
         let second_bit = other & 0b0100000000000000;
@@ -163,7 +137,7 @@ impl MemoryLocation for ProgramCounter {
     }
 
     fn add(&mut self, other: u16) {
-        let value = sp15_add(self.to_u15(), other);
+        let value = sp15_add(self.to_u16(), other);
         self.mov_u16(value);
 
         // TODO: Add overflow handling
@@ -173,35 +147,36 @@ impl MemoryLocation for ProgramCounter {
 #[derive(Default)]
 pub struct Zero {}
 
-// impl MemoryLocation for Zero {
-//     fn to_u16(&self) -> u16 {
-//         return 0;
-//     }
+impl MemoryLocation for Zero {
+    fn to_u16(&self) -> u16 {
+        return 0;
+    }
 
-//     fn mov_u16(&mut self, other: u16) {
-//         panic!("Attempted to set the zero register!")
-//     }
-// }
-
-// TODO Implement memory
+    fn mov_u16(&mut self, _other: u16) {
+        panic!("Attempted to set the zero register!")
+    }
+}
 
 pub trait MemoryLocation {
     fn to_u16(&self) -> u16;
-    fn to_u15(&self) -> u16;
     fn mov_u16(&mut self, other: u16);
 
     fn add(&mut self, other: u16) {
-        self.mov_u16(sp15_add(self.to_u15(), other));
+        self.mov_u16(sp15_add(self.to_u16(), other));
     }
 }
 
 pub fn sp15_add(a: u16, b: u16) -> u16 {
+    let a = a & 0b0111111111111111;
+    let b = b & 0b0111111111111111;
+
     let mask = 0b0111_1111_1111_1111;
     let overflow = (a + b) & !mask != 0;
 
     let add = if overflow { 1 } else { 0 };
 
     return (a + b + add) & mask;
+    // TODO Add overflow bit
 }
 
 // TODO Readd some unit tests
@@ -216,26 +191,17 @@ mod tests {
             inner: 0b0111_1111_0000_1110,
         };
 
-        assert_eq!(acc.to_u15(), 0b0111111100001110);
+        assert_eq!(acc.to_u16(), 0b0111111100001110);
     }
 
-    #[test]
-    fn test_acc_u15_mask() {
-        let acc = AccumulatorInteger {
-            inner: 0b1111_1111_0000_1110,
-        };
-
-        assert_eq!(acc.to_u15(), 0b0111111100001110);
-    }
-
-    #[test]
+        #[test]
     fn test_acc_add_neg() {
         let mut acc = AccumulatorInteger {
             inner: 0b000000000000000,
         };
         acc.add(0b111111111111111);
 
-        assert_eq!(acc.to_u15(), 0b111111111111111);
+        assert_eq!(acc.to_u16(), 0b111111111111111);
     }
 
     #[test]
@@ -245,7 +211,7 @@ mod tests {
         };
         acc.add(0b010000000000000);
 
-        assert_eq!(acc.to_u15(), 0b001000000000000);
+        assert_eq!(acc.to_u16(), 0b001000000000000);
     }
 
     // #[test]
