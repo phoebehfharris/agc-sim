@@ -7,10 +7,23 @@ struct Bank {
     mem: [u16; 0o2000],
 }
 
+impl Default for Bank {
+    fn default() -> Self {
+        Self { mem: [0; 0o2000] }
+    }
+}
+
 struct EBank {
     mem: [u16; 0o400],
 }
 
+impl Default for EBank {
+    fn default() -> Self {
+        Self { mem: [0; 0o400] }
+    }
+}
+
+#[derive(Default)]
 struct NullBank {}
 
 impl BankOps for Bank {
@@ -42,6 +55,16 @@ pub struct Memory {
     ebanks: [EBank; 8],
     banks: [Bank; 43],
     null: NullBank,
+}
+
+impl Default for Memory {
+    fn default() -> Self {
+        Self {
+            ebanks: core::array::from_fn(|_| EBank::default()),
+            banks: core::array::from_fn(|_| Bank::default()),
+            null: NullBank::default(),
+        }
+    }
 }
 
 impl Memory {

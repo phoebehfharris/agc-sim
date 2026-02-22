@@ -1,22 +1,17 @@
+use std::io::Read;
+
 use crate::instructions::{Instruction, parse_bytes};
 use crate::memory::Memory;
-use crate::registerfile::RegisterFile;
 use crate::register_types::MemoryLocation;
+use crate::registerfile::RegisterFile;
 
+#[derive(Default)]
 pub struct VM {
     registers: RegisterFile,
     memory: Memory,
 }
 
 impl VM {
-    pub fn new() -> Self {
-        todo!()
-        // return Self {
-        //     registers: RegisterFile::new(),
-        //     memory: Memory::new()
-        // }
-    }
-
     pub fn execute_instruction(&mut self) {
         loop {
             // self.memory.read_location(location, eb_select, bank_select)
@@ -37,17 +32,24 @@ impl VM {
                     self.registers.with_accumulator_mut(|acc| {
                         acc.add(mem);
                     })
-                },
-                Instruction::ADS(_rhs) => {
-                    self.registers.with_accumulator_mut(|_acc| {
-                    })
-                },
+                }
+                Instruction::ADS(_rhs) => self.registers.with_accumulator_mut(|_acc| {}),
                 // TODO Add the rest of the instructions
-                _ => unreachable!()
+                _ => unreachable!(),
             }
         }
     }
 
-    fn read_memory(&self, _address: usize) -> u16 {todo!()}
-    fn write_memory(&mut self, _address: usize) {todo!()}
+    // pub fn set_start_location(&mut self) {
+    //     self.registers.
+    // }
+    fn read_memory(&mut self, address: usize) -> u16 {
+        let eb = self.registers.eb_number();
+        let fb = self.registers.fb_number();
+
+        self.memory.read_location(address, eb, fb).unwrap_or(0)
+    }
+    fn write_memory(&mut self, _address: usize) {
+        todo!()
+    }
 }
