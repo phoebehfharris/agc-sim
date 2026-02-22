@@ -56,6 +56,7 @@ impl Memory {
         return &mut self.ebanks[ebank];
     }
 
+    // TODO Maybe merge this with the VM code?
     fn select_location(
         &mut self,
         location: usize,

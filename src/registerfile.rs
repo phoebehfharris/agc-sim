@@ -6,7 +6,7 @@ use ouroboros::self_referencing;
 #[self_referencing]
 pub struct RegisterFile {
     // "A"
-    accumulator: AccumulatorInteger,
+    pub accumulator: AccumulatorInteger,
     // NOTE: Everything below is actually 15-bits
     // "L"
     lower_product: MemoryInteger,
@@ -35,8 +35,7 @@ pub struct RegisterFile {
     sample_time_2: MemoryInteger,
     // "ZRUPT"
     program_counter_interrupt: ProgramCounter,
-    // TODO: Do the rest of the registers
+    // TODO Do the rest of the registers
 }
 
-impl RegisterFile {
-}
+// TODO Create a proper new function
