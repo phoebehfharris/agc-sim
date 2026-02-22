@@ -8,11 +8,11 @@ pub struct RegisterFile {
     pub accumulator: AccumulatorInteger,
     // NOTE: Everything below is actually 15-bits
     // "L"
-    lower_product: MemoryInteger,
+    pub lower_product: MemoryInteger,
     // "Q"
-    ret_address: AccumulatorInteger,
+    pub ret_address: AccumulatorInteger,
     // "EB"
-    pub erasable_bank: ErasableBank,
+    erasable_bank: ErasableBank,
     // "FB"
     fixed_bank: FixedBank,
     // "Z"
@@ -22,18 +22,18 @@ pub struct RegisterFile {
     #[not_covariant]
     pub both_banks: BothBanks<'this>,
     // No name
-    zero: Zero,
+    pub zero: Zero,
     // "ARUPT"
-    accumulator_interrupt: MemoryInteger,
+    pub accumulator_interrupt: MemoryInteger,
     // "LRUPT"
-    lower_product_interrupt: MemoryInteger,
+    pub lower_product_interrupt: MemoryInteger,
     // "QRUPT"
-    ret_address_interrupt: AccumulatorInteger,
+    pub ret_address_interrupt: AccumulatorInteger,
     // "SAMPTIME"
-    sample_time_1: MemoryInteger,
-    sample_time_2: MemoryInteger,
+    pub sample_time_1: MemoryInteger,
+    pub sample_time_2: MemoryInteger,
     // "ZRUPT"
-    program_counter_interrupt: ProgramCounter,
+    pub program_counter_interrupt: ProgramCounter,
     // TODO Do the rest of the registers
 }
 

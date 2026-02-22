@@ -36,15 +36,32 @@ pub struct MemoryInteger {
     inner: u16,
 }
 
-// impl MemoryLocation for MemoryInteger {
-//     fn to_u16(&self) -> u16 {
-//         self.inner
-//     }
+impl MemoryLocation for MemoryInteger {
+    fn to_u16(&self) -> u16 {
+        self.inner
+    }
+    fn to_u15(&self) -> u16 {
+        return self.inner & 0b0111111111111111;
+    }
 
-//     fn mov_u16(&mut self, other: u16) {
-//         self.inner = other & 0b0111_1111_1111_1111;
-//     }
-// }
+    fn mov_u16(&mut self, other: u16) {
+        // TODO: Change this to MSB
+        let second_bit = other & 0b0100000000000000;
+
+        if second_bit > 0 {
+            self.inner = other | 0b1000000000000000;
+        } else {
+            self.inner = other & 0b0111111111111111;
+        }
+    }
+
+    fn add(&mut self, other: u16) {
+        let value = sp15_add(self.to_u15(), other);
+        self.mov_u16(value);
+
+        // TODO: Add overflow handling
+    }
+}
 
 // TODO Implement memory
 //

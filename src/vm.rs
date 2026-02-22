@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::io::Read;
 
 use crate::instructions::{Instruction, parse_bytes};
@@ -28,7 +29,6 @@ impl VM {
 
             match opcode {
                 Instruction::AD(rhs_addr) => {
-                    println!("Here");
                     let mem = self.read_memory(rhs_addr);
                     self.registers.with_accumulator_mut(|acc| {
                         acc.add(mem);
@@ -57,5 +57,62 @@ impl VM {
         let fb = self.registers.fb_number();
 
         self.memory.write_location(address, eb, fb, data)
+    }
+}
+
+impl Display for VM {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "VM ===================")?;
+        writeln!(
+            f,
+            "Acc {:#018b}",
+            self.registers.borrow_accumulator().to_u16()
+        )?;
+        writeln!(
+            f,
+            "LoP {:#018b}",
+            self.registers.borrow_lower_product().to_u16()
+        )?;
+        writeln!(
+            f,
+            "Ret {:#018b}",
+            self.registers.borrow_ret_address().to_u16()
+        )?;
+        writeln!(
+            f,
+            "Pc  {:#018b}",
+            self.registers.borrow_program_counter().to_u16()
+        )?;
+        writeln!(
+            f,
+            "AcI {:#018b}",
+            self.registers.borrow_accumulator_interrupt().to_u16()
+        )?;
+        writeln!(
+            f,
+            "LpI {:#018b}",
+            self.registers.borrow_lower_product_interrupt().to_u16()
+        )?;
+        writeln!(
+            f,
+            "ReI {:#018b}",
+            self.registers.borrow_ret_address_interrupt().to_u16()
+        )?;
+        writeln!(
+            f,
+            "ST1 {:#018b}",
+            self.registers.borrow_sample_time_1().to_u16()
+        )?;
+        writeln!(
+            f,
+            "ST2 {:#018b}",
+            self.registers.borrow_sample_time_2().to_u16()
+        )?;
+        writeln!(
+            f,
+            "PcI {:#018b}",
+            self.registers.borrow_program_counter_interrupt().to_u16()
+        )?;
+        Ok(())
     }
 }
