@@ -1,7 +1,6 @@
 use crate::register_types::MemoryInteger;
 
 pub enum Instruction {
-    InvalidInstruction,
     AD(usize),
     ADS(usize),
     AUG(usize),
@@ -54,6 +53,7 @@ pub enum Instruction {
     // XXALQ,
     ZL,
     ZQ,
+    ERR,
 }
 
 pub fn parse_bytes(b1: u16, b2: u16) -> (Instruction, usize) {
