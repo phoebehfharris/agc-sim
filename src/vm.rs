@@ -33,9 +33,14 @@ impl VM {
 
             match opcode {
                 Instruction::AD(rhs_addr) => {
+                    let mem = self.access_memory(rhs);
                     self.registers.with_accumulator_mut(|acc| {
-                        // TODO Do this
+                        acc.add(mem);
 
+                    })
+                },
+                Instruction::ADS(rhs) => {
+                    self.registers.with_accumulator_mut(|acc| {
 
                     })
                 },
