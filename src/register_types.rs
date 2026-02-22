@@ -118,6 +118,8 @@ pub struct BothBanks<'a> {
     pub fixed: &'a mut FixedBank,
 }
 
+// impl BothBanks
+
 // TODO Implement memory (fun!)
 
 #[derive(Default)]
@@ -133,8 +135,21 @@ impl MemoryLocation for ProgramCounter {
         return self.inner & 0b0111111111111111;
     }
     fn mov_u16(&mut self, other: u16) {
-        // TODO Implement
-        todo!()
+        // TODO: Change this to MSB
+        let second_bit = other & 0b0100000000000000;
+
+        if second_bit > 0 {
+            self.inner = other | 0b1000000000000000;
+        } else {
+            self.inner = other & 0b0111111111111111;
+        }
+    }
+
+    fn add(&mut self, other: u16) {
+        let value = sp15_add(self.to_u15(), other);
+        self.mov_u16(value);
+
+        // TODO: Add overflow handling
     }
 }
 

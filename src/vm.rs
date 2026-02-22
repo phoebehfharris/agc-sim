@@ -28,6 +28,7 @@ impl VM {
 
             match opcode {
                 Instruction::AD(rhs_addr) => {
+                    println!("Here");
                     let mem = self.read_memory(rhs_addr);
                     self.registers.with_accumulator_mut(|acc| {
                         acc.add(mem);
@@ -35,21 +36,23 @@ impl VM {
                 }
                 Instruction::ADS(_rhs) => self.registers.with_accumulator_mut(|_acc| {}),
                 // TODO Add the rest of the instructions
-                _ => unreachable!(),
+                _ => break,
             }
         }
     }
 
-    // pub fn set_start_location(&mut self) {
-    //     self.registers.
-    // }
-    fn read_memory(&mut self, address: usize) -> u16 {
+    pub fn set_start_location(&mut self, start: u16) {
+        self.registers.with_program_counter_mut(|pc| {
+            pc.mov_u16(start);
+        })
+    }
+    pub fn read_memory(&mut self, address: usize) -> u16 {
         let eb = self.registers.eb_number();
         let fb = self.registers.fb_number();
 
         self.memory.read_location(address, eb, fb).unwrap_or(0)
     }
-    fn write_memory(&mut self, address: usize, data: u16) {
+    pub fn write_memory(&mut self, address: usize, data: u16) {
         let eb = self.registers.eb_number();
         let fb = self.registers.fb_number();
 
