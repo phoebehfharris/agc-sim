@@ -123,5 +123,44 @@ fn parse_normal(b: u16) -> Instruction {
     instruction
 }
 fn parse_extended(b: u16) -> Instruction {
-    todo!()
+    let operator_mask = 0b0_111_000_000_000_000;
+    let operand_mask = !operator_mask;
+    let qq_mask = 0b0_000_110_000_000_000;
+    let ppp_mask = 0b0_000_111_000_000_000;
+    let short_operand_mask = !(operator_mask | ppp_mask);
+    let short_qq_operand_mask = !(operator_mask | qq_mask);
+    let instruction = match b & operator_mask {
+        0o00000 => match b & ppp_mask {
+            0o00000 => Instruction::READ((b & short_operand_mask) as usize),
+            0o01000 => Instruction::WRITE((b & short_operand_mask) as usize),
+            0o02000 => Instruction::RAND((b & short_operand_mask) as usize),
+            0o03000 => Instruction::WAND((b & short_operand_mask) as usize),
+            0o04000 => Instruction::ROR((b & short_operand_mask) as usize),
+            0o05000 => Instruction::WOR((b & short_operand_mask) as usize),
+            0o06000 => Instruction::RXOR((b & short_operand_mask) as usize),
+            // 0o07000 => Instruction::ED((b & short_operand_mask) as usize),
+            _ => Instruction::ERR,
+        },
+        0o10000 => match b & qq_mask {
+            0o00000 => Instruction::DV((b & short_qq_operand_mask) as usize),
+            _ => Instruction::BZF((b & operand_mask) as usize),
+        },
+        0o20000 => match b & qq_mask {
+            0o00000 => Instruction::MSU((b & short_qq_operand_mask) as usize),
+            0o02000 => Instruction::QXCH((b & short_qq_operand_mask) as usize),
+            0o04000 => Instruction::AUG((b & short_qq_operand_mask) as usize),
+            0o06000 => Instruction::DIM((b & short_qq_operand_mask) as usize),
+            _ => Instruction::ERR,
+        },
+        0o30000 => Instruction::DCA(((b - 1) & operand_mask) as usize),
+        0o40000 => Instruction::DCS(((b - 1) & operand_mask) as usize),
+        0o50000 => Instruction::INDEX((b & operand_mask) as usize),
+        0o60000 => match b & qq_mask {
+            0o00000 => Instruction::SU((b & short_qq_operand_mask) as usize),
+            _ => Instruction::BZMF((b & operand_mask) as usize),
+        },
+        0o70000 => Instruction::MP((b & operand_mask) as usize),
+        _ => Instruction::ERR,
+    };
+    instruction
 }
