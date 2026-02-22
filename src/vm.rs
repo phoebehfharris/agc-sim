@@ -3,7 +3,7 @@ use std::io::Read;
 
 use crate::instructions::{Instruction, parse_bytes};
 use crate::memory::Memory;
-use crate::register_types::MemoryLocation;
+use crate::register_types::{MemoryLocation, sp15_add};
 use crate::registerfile::RegisterFile;
 
 #[derive(Default)]
@@ -18,23 +18,26 @@ impl VM {
             // self.memory.read_location(location, eb_select, bank_select)
             let old_pc = self.registers.borrow_program_counter().to_u16();
             // Hahaha this could have been pc += 1
-            self.registers.with_program_counter_mut(|pc| {
-                pc.mov_u16(old_pc + 1);
-            });
 
             let i1 = self.read_memory(old_pc as usize);
             let i2 = self.read_memory((old_pc + 1) as usize);
 
-            let (opcode, _taken) = parse_bytes(i1, i2);
+            let (opcode, taken) = parse_bytes(i1, i2);
+
+            self.registers.with_program_counter_mut(|pc| {
+                pc.mov_u16(old_pc + taken as u16);
+            });
 
             match opcode {
                 Instruction::AD(rhs_addr) => {
+                    println!("AD   {:#07o}", rhs_addr);
                     let mem = self.read_memory(rhs_addr);
                     self.registers.with_accumulator_mut(|acc| {
                         acc.add(mem);
                     })
                 }
                 Instruction::ADS(rhs) => {
+                    println!("ADS  {:#07o}", rhs);
                     let mem = self.read_memory(rhs);
                     let mut new = 0;
                     self.registers.with_accumulator_mut(|acc| {
@@ -42,6 +45,29 @@ impl VM {
                         new = acc.to_u16();
                     });
                     self.write_memory(rhs, new);
+                }
+                Instruction::AUG(rhs) => {
+                    println!("AUG  {:#07o}", rhs);
+                    // Check what they mean by +- 1...
+                    let mem = self.read_memory(rhs);
+                    let b_mask = 0b0_100_000_000_000_000;
+                    let new = if mem & b_mask == 0 {
+                        sp15_add(mem, 0b000000000000001)
+                    } else {
+                        sp15_add(mem, 0b111111111111110)
+                    };
+                    self.write_memory(rhs, new);
+                }
+                Instruction::BZF(rhs) => {
+                    // NOTE: This should go into fixed, is this something we mandate?
+                    println!("BZF  {:#07o}", rhs);
+                    let plus_z = 0b000000000000000;
+                    let minu_z = 0b111111111111111;
+                    let acc = self.registers.with_accumulator_mut(|acc| acc.to_u16());
+                    if acc == plus_z || acc == minu_z {
+                        self.registers
+                            .with_program_counter_mut(|pc| pc.mov_u16(rhs as u16))
+                    }
                 }
                 // TODO Add the rest of the instructions
                 _ => break,

@@ -195,7 +195,7 @@ pub trait MemoryLocation {
     }
 }
 
-fn sp15_add(a: u16, b: u16) -> u16 {
+pub fn sp15_add(a: u16, b: u16) -> u16 {
     let mask = 0b0111_1111_1111_1111;
     let overflow = (a + b) & !mask != 0;
 
