@@ -10,9 +10,11 @@ fn main() {
     let mut vm = VM::default();
 
     let start_location = 0o2000;
-    let instruction = 0o60000;
-    vm.write_memory(start_location, instruction);
-    vm.write_memory(0, 0o0123);
+    let instruction_ad = 0o60000;
+    let instruction_ads = 0o26000;
+    vm.write_memory(start_location, instruction_ad);
+    vm.write_memory(start_location + 1, instruction_ads);
+    vm.write_memory(0, 0o00001);
     vm.set_start_location(start_location as u16);
     vm.execute_instruction();
     println!("{}", vm);

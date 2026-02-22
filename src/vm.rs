@@ -34,7 +34,15 @@ impl VM {
                         acc.add(mem);
                     })
                 }
-                Instruction::ADS(_rhs) => self.registers.with_accumulator_mut(|_acc| {}),
+                Instruction::ADS(rhs) => {
+                    let mem = self.read_memory(rhs);
+                    let mut new = 0;
+                    self.registers.with_accumulator_mut(|acc| {
+                        acc.add(mem);
+                        new = acc.to_u16();
+                    });
+                    self.write_memory(rhs, new);
+                }
                 // TODO Add the rest of the instructions
                 _ => break,
             }
